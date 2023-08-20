@@ -1,14 +1,20 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
+const cors = require('cors');
 const routes = require('./config/routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
-const PORT = 3000;
+
+const PORT = process.env.NODE_ENV === 'test' ? 3005 : 3000;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(cors({
+    origin: 'http://localhost:5173'
+}));
 
 // Swagger Doc Routes
 const options = {
@@ -21,7 +27,7 @@ const options = {
         },
         servers: [
             {
-                url: 'http://localhost:3000/api',
+                url: `http://localhost:${PORT}/api`,
             },
         ],
         components: {
@@ -37,7 +43,6 @@ const options = {
     apis: ['./config/*.js', './controllers/*.js'],
 };
 
-
 const specs = swaggerJsdoc(options);
 
 app.use('/api/docs', swaggerUi.serve);
@@ -51,7 +56,8 @@ app.get('/_healthcheck', (req, res) => {
     res.json({ status: "the application is running" });
 });
 
-
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = app;

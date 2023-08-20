@@ -1,4 +1,9 @@
 .env
 node_modules/
-docker/mysql/
+docker/mysql/*
 .idea/
+
+
+# Don't ignore Dockerfile and entrypoint.sql
+!docker/mysql/Dockerfile
+!docker/mysql/entrypoint.sql
