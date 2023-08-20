@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+    ports:
+      - '3050:3000'
+    volumes:
+      - '.:/app'
+    tty: true
+    command: tail -f /dev/null
+
+  mysql:
+    container_name: mysql
+    image: mysql:8.0
+    ports:
+      - '4306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_DATABASE}
+      MYSQL_USER: ${DATABASE_USERNAME}
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+
+  phpmyadmin:
+    platform: linux/amd64
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - '3091:80'
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: ${DATABASE_USERNAME}
+      PMA_PASSWORD: ${DATABASE_PASSWORD}
+      PMA_ARBITRARY: 1
+    depends_on:
+      - mysql
