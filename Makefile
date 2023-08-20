@@ -25,3 +25,6 @@ mysql:
 
 backend:
 	docker exec -it backend sh
+
+migrate:
+	docker exec -it backend npx sequelize-cli db:migrate
