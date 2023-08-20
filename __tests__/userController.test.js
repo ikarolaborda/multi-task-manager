@@ -1,21 +1,19 @@
+require('dotenv').config({ path: '.env.test' });
 const request = require('supertest');
-const app = require('../index'); // Import your app
 const { User, RefreshToken, BlacklistedToken } = require('../models');
 const { runCommand } = require('../helpers/runCommand');
-const { createTestDatabase, dropTestDatabase } = require('../helpers/createTestDB');
+const app = require('../index');
+
+let server;
 
 describe('UserController', () => {
     beforeAll(async () => {
+        server = app.listen(3010);
         process.env.NODE_ENV = 'test';
-
-        // Create test database
-        await createTestDatabase();
 
         // Run migrations
         await runCommand('npx sequelize-cli db:migrate');
 
-        // Seed the database
-        await runCommand('npx sequelize-cli db:seed:all');
     });
 
     // Test for registration
@@ -24,7 +22,7 @@ describe('UserController', () => {
             .post('/register')
             .send({
                 username: 'testuser',
-                password: 'testpassword'  // Send plain password
+                password: 'testpassword'
             });
         expect(res.statusCode).toEqual(201);
         expect(res.body.message).toEqual('User registered successfully');
@@ -37,14 +35,9 @@ describe('UserController', () => {
     });
 
     afterAll(async () => {
-        // Undo seeds
-        await runCommand('npx sequelize-cli db:seed:undo:all');
-
         // Undo migrations
         await runCommand('npx sequelize-cli db:migrate:undo:all');
-
-        // Drop test database
-        await dropTestDatabase();
+        server.close();
     });
 });
 

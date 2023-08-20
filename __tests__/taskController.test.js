@@ -1,7 +1,9 @@
+require('dotenv').config({ path: '.env.test' });
 const request = require('supertest');
 const app = require('../index');
 const { runCommand } = require('../helpers/runCommand');
-const { createTestDatabase, dropTestDatabase } = require('../helpers/createTestDB');
+
+let server;
 
 let jwtToken; // To store the JWT token
 
@@ -9,16 +11,11 @@ describe('TaskController', () => {
 
     // Before any tests run, log in to get a JWT token
     beforeAll(async () => {
+        server = app.listen(3010);
         process.env.NODE_ENV = 'test';
-
-        // Create test database
-        await createTestDatabase();
 
         // Run migrations
         await runCommand('npx sequelize-cli db:migrate');
-
-        // Seed the database
-        await runCommand('npx sequelize-cli db:seed:all');
 
         const res = await request(app)
             .post('/login') // Replace with your actual login endpoint
@@ -55,12 +52,8 @@ describe('TaskController', () => {
     });
 
     afterAll(async () => {
-        // Undo seeds
-        await runCommand('npx sequelize-cli db:seed:undo:all');
-
         // Undo migrations
         await runCommand('npx sequelize-cli db:migrate:undo:all');
-
-        await dropTestDatabase();
+        server.close();
     });
 });

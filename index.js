@@ -6,14 +6,14 @@ const routes = require('./config/routes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 
-const PORT = process.env.NODE_ENV === 'test' ? 3005 : 3000;
+const PORT = 3001;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors({
-    origin: 'http://localhost:5173'
+    origin: 'http://localhost:8081'
 }));
 
 // Swagger Doc Routes
